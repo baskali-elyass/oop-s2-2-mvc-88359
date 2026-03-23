@@ -1,0 +1,31 @@
+@model IEnumerable<FoodSafetyTracker.Domain.Inspection>
+@{ ViewData["Title"] = "Inspections"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🔍 Inspections</h2>
+    @if (User.IsInRole("Admin") || User.IsInRole("Inspector"))
+    { <a asp-action="Create" class="btn btn-success">+ New Inspection</a> }
+</div>
+<table class="table table-hover align-middle">
+    <thead class="table-dark">
+        <tr><th>Premises</th><th>Date</th><th>Score</th><th>Outcome</th><th>Notes</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var i in Model)
+    {
+        <tr>
+            <td class="fw-semibold">@i.Premises?.Name</td>
+            <td>@i.InspectionDate.ToShortDateString()</td>
+            <td>@i.Score</td>
+            <td><span class="badge @(i.Outcome == InspectionOutcome.Pass ? "bg-success" : "bg-danger")">@i.Outcome</span></td>
+            <td><small>@i.Notes</small></td>
+            <td>
+                <a asp-action="Details" asp-route-id="@i.Id" class="btn btn-sm btn-outline-info">Details</a>
+                @if (User.IsInRole("Admin")) {
+                    <a asp-action="Edit" asp-route-id="@i.Id" class="btn btn-sm btn-outline-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@i.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,16 @@
+@model FoodSafetyTracker.Domain.Inspection
+@{ ViewData["Title"] = "New Inspection"; }
+<h2>New Inspection</h2>
+<div class="col-md-6">
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="PremisesId" class="form-label">Premises</label><select asp-for="PremisesId" asp-items="ViewBag.PremisesId" class="form-select"><option value="">-- Select --</option></select><span asp-validation-for="PremisesId" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="InspectionDate" class="form-label"></label><input asp-for="InspectionDate" type="date" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Score" class="form-label"></label><input asp-for="Score" type="number" min="0" max="100" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Outcome" class="form-label"></label><select asp-for="Outcome" asp-items="Html.GetEnumSelectList<InspectionOutcome>()" class="form-select"></select></div>
+    <div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control" rows="3"></textarea></div>
+    <button type="submit" class="btn btn-success">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+</div>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

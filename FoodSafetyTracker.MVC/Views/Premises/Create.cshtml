@@ -1,0 +1,15 @@
+@model FoodSafetyTracker.Domain.Premises
+@{ ViewData["Title"] = "Add Premises"; }
+<h2>Add Premises</h2>
+<div class="col-md-6">
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Address" class="form-label"></label><input asp-for="Address" class="form-control" /><span asp-validation-for="Address" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Town" class="form-label"></label><input asp-for="Town" class="form-control" /><span asp-validation-for="Town" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="RiskRating" class="form-label"></label><select asp-for="RiskRating" asp-items="Html.GetEnumSelectList<RiskRating>()" class="form-select"></select></div>
+    <button type="submit" class="btn btn-success">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+</div>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

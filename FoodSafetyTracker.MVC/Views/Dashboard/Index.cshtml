@@ -1,0 +1,73 @@
+@model FoodSafetyTracker.MVC.Models.DashboardViewModel
+@{ ViewData["Title"] = "Dashboard"; }
+
+<h2 class="mb-4">📊 Dashboard</h2>
+
+<form method="get" class="row g-2 mb-4 align-items-end">
+    <div class="col-md-3">
+        <label class="form-label fw-semibold">Town</label>
+        <select name="town" class="form-select">
+            <option value="">All Towns</option>
+            @foreach (var t in Model.Towns)
+            {
+                <option value="@t" selected="@(t == Model.FilterTown)">@t</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label fw-semibold">Risk Rating</label>
+        <select name="riskRating" class="form-select">
+            <option value="">All Ratings</option>
+            @foreach (RiskRating r in Enum.GetValues(typeof(RiskRating)))
+            {
+                <option value="@r" selected="@(r == Model.FilterRiskRating)">@r</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-success">Apply</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+    </div>
+</form>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-left: 5px solid #1a3c34 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Inspections This Month</p>
+                        <h2 class="fw-bold">@Model.InspectionsThisMonth</h2>
+                    </div>
+                    <span class="fs-1">🔍</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-left: 5px solid #c62828 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Failed This Month</p>
+                        <h2 class="fw-bold text-danger">@Model.FailedThisMonth</h2>
+                    </div>
+                    <span class="fs-1">❌</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-left: 5px solid #f57f17 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Overdue Follow-Ups</p>
+                        <h2 class="fw-bold text-warning">@Model.OverdueFollowUps</h2>
+                    </div>
+                    <span class="fs-1">⏰</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

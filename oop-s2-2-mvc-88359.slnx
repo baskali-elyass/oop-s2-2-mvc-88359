@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="oop-s2-2-mvc-88359/oop-s2-2-mvc-88359.csproj" />
+  <Project Path="FoodSafetyTracker.Domain/FoodSafetyTracker.Domain.csproj" />
+  <Project Path="FoodSafetyTracker.MVC/FoodSafetyTracker.MVC.csproj" />
+  <Project Path="FoodSafetyTracker.Tests/FoodSafetyTracker.Tests.csproj" />
 </Solution>

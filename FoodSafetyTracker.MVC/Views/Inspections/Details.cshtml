@@ -1,0 +1,21 @@
+@model FoodSafetyTracker.Domain.Inspection
+@{ ViewData["Title"] = "Inspection Details"; }
+<h2>Inspection – @Model.Premises?.Name</h2>
+<dl class="row">
+    <dt class="col-sm-3">Date</dt><dd class="col-sm-9">@Model.InspectionDate.ToShortDateString()</dd>
+    <dt class="col-sm-3">Score</dt><dd class="col-sm-9">@Model.Score / 100</dd>
+    <dt class="col-sm-3">Outcome</dt><dd class="col-sm-9"><span class="badge @(Model.Outcome == InspectionOutcome.Pass ? "bg-success" : "bg-danger")">@Model.Outcome</span></dd>
+    <dt class="col-sm-3">Notes</dt><dd class="col-sm-9">@(Model.Notes ?? "–")</dd>
+</dl>
+<h5 class="mt-3">Follow-Ups</h5>
+<table class="table table-sm">
+    <thead><tr><th>Due Date</th><th>Status</th><th>Closed</th></tr></thead>
+    <tbody>
+    @foreach (var f in Model.FollowUps)
+    {
+        <tr><td>@f.DueDate.ToShortDateString()</td><td>@f.Status</td><td>@(f.ClosedDate?.ToShortDateString() ?? "–")</td></tr>
+    }
+    </tbody>
+</table>
+<a asp-action="Index" class="btn btn-secondary">Back</a>
+<a asp-controller="FollowUps" asp-action="Create" asp-route-inspectionId="@Model.Id" class="btn btn-outline-success">+ Add Follow-Up</a>

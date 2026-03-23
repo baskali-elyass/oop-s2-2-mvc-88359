@@ -1,0 +1,36 @@
+@model IEnumerable<FoodSafetyTracker.Domain.Premises>
+@{ ViewData["Title"] = "Premises"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🏠 Premises</h2>
+    @if (User.IsInRole("Admin") || User.IsInRole("Inspector"))
+    {
+        <a asp-action="Create" class="btn btn-success">+ Add Premises</a>
+    }
+</div>
+
+@if (TempData["Error"] is string err) { <div class="alert alert-danger">@err</div> }
+
+<table class="table table-hover align-middle">
+    <thead class="table-dark">
+        <tr><th>Name</th><th>Address</th><th>Town</th><th>Risk</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td class="fw-semibold">@p.Name</td>
+            <td>@p.Address</td>
+            <td>@p.Town</td>
+            <td><span class="badge @(p.RiskRating == RiskRating.High ? "bg-danger" : p.RiskRating == RiskRating.Medium ? "bg-warning text-dark" : "bg-success")">@p.RiskRating</span></td>
+            <td>
+                <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-outline-info">Details</a>
+                @if (User.IsInRole("Admin")) {
+                    <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
