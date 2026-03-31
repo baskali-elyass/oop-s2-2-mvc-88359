@@ -3,12 +3,10 @@ using FoodSafetyTracker.MVC.Controllers;
 using FoodSafetyTracker.MVC.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace FoodSafetyTracker.Tests;
 
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
 file static class DbFactory
 {
     public static ApplicationDbContext Create() =>
@@ -34,9 +32,6 @@ file static class DbFactory
     }
 }
 
-// ─────────────────────────────────────────────
-// Domain — Premises
-// ─────────────────────────────────────────────
 public class PremisesDomainTests
 {
     [Fact]
@@ -66,9 +61,6 @@ public class PremisesDomainTests
     }
 }
 
-// ─────────────────────────────────────────────
-// Domain — Inspection
-// ─────────────────────────────────────────────
 public class InspectionDomainTests
 {
     [Fact]
@@ -106,9 +98,6 @@ public class InspectionDomainTests
     }
 }
 
-// ─────────────────────────────────────────────
-// Domain — FollowUp
-// ─────────────────────────────────────────────
 public class FollowUpDomainTests
 {
     [Fact]
@@ -137,9 +126,6 @@ public class FollowUpDomainTests
     }
 }
 
-// ─────────────────────────────────────────────
-// PremisesController
-// ─────────────────────────────────────────────
 public class PremisesControllerTests
 {
     [Fact]
@@ -309,6 +295,10 @@ public class PremisesControllerTests
     {
         var (ctx, premises) = await DbFactory.WithPremisesAsync();
         var controller = new PremisesController(ctx);
+        controller.TempData = new Microsoft.AspNetCore.Mvc.ViewFeatures.TempDataDictionary(
+            new DefaultHttpContext(),
+            Mock.Of<Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider>()
+        );
 
         var result = await controller.DeleteConfirmed(premises.Id);
 
@@ -323,18 +313,19 @@ public class PremisesControllerTests
         var (ctx, _, _) = await DbFactory.WithInspectionAsync();
         var premises = await ctx.Premises.FirstAsync();
         var controller = new PremisesController(ctx);
+        controller.TempData = new Microsoft.AspNetCore.Mvc.ViewFeatures.TempDataDictionary(
+            new DefaultHttpContext(),
+            Mock.Of<Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider>()
+        );
 
         var result = await controller.DeleteConfirmed(premises.Id);
 
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("Index", redirect.ActionName);
-        Assert.Equal(1, await ctx.Premises.CountAsync()); // pas supprimé
+        Assert.Equal(1, await ctx.Premises.CountAsync());
     }
 }
 
-// ─────────────────────────────────────────────
-// InspectionsController
-// ─────────────────────────────────────────────
 public class InspectionsControllerTests
 {
     [Fact]
@@ -513,9 +504,6 @@ public class InspectionsControllerTests
     }
 }
 
-// ─────────────────────────────────────────────
-// FollowUpsController
-// ─────────────────────────────────────────────
 public class FollowUpsControllerTests
 {
     [Fact]
@@ -560,7 +548,7 @@ public class FollowUpsControllerTests
         var followUp = new FollowUp
         {
             InspectionId = inspection.Id,
-            DueDate = inspection.InspectionDate.AddDays(-5), // avant l'inspection
+            DueDate = inspection.InspectionDate.AddDays(-5),
             Status = FollowUpStatus.Open
         };
 
@@ -628,16 +616,12 @@ public class FollowUpsControllerTests
         ctx.FollowUps.Add(followUp);
         await ctx.SaveChangesAsync();
 
-        // Vérifie directement que le statut n'a pas changé en base
         var saved = await ctx.FollowUps.FindAsync(followUp.Id);
         Assert.Equal(FollowUpStatus.Closed, saved!.Status);
         Assert.Equal(closedDate, saved.ClosedDate);
     }
 }
 
-// ─────────────────────────────────────────────
-// DashboardController
-// ─────────────────────────────────────────────
 public class DashboardControllerTests
 {
     [Fact]
@@ -646,7 +630,6 @@ public class DashboardControllerTests
         var (ctx, _, inspection) = await DbFactory.WithInspectionAsync();
         var today = DateTime.Today;
 
-        // Inspection ce mois-ci (fail)
         ctx.Inspections.Add(new Inspection
         {
             PremisesId = inspection.PremisesId,
@@ -654,7 +637,6 @@ public class DashboardControllerTests
             Score = 80,
             Outcome = InspectionOutcome.Pass
         });
-        // FollowUp en retard
         ctx.FollowUps.Add(new FollowUp
         {
             InspectionId = inspection.Id,
@@ -711,9 +693,6 @@ public class DashboardControllerTests
     }
 }
 
-// ─────────────────────────────────────────────
-// Tests base de données (logique métier)
-// ─────────────────────────────────────────────
 public class BusinessLogicTests
 {
     [Fact]
@@ -762,9 +741,9 @@ public class BusinessLogicTests
         var monthStart = new DateTime(today.Year, today.Month, 1);
 
         ctx.Inspections.AddRange(
-            new Inspection { PremisesId = premises.Id, InspectionDate = today,                        Score = 80, Outcome = InspectionOutcome.Pass },
-            new Inspection { PremisesId = premises.Id, InspectionDate = today.AddDays(-2),            Score = 45, Outcome = InspectionOutcome.Fail },
-            new Inspection { PremisesId = premises.Id, InspectionDate = monthStart.AddMonths(-1),     Score = 70, Outcome = InspectionOutcome.Pass }
+            new Inspection { PremisesId = premises.Id, InspectionDate = today,                    Score = 80, Outcome = InspectionOutcome.Pass },
+            new Inspection { PremisesId = premises.Id, InspectionDate = today.AddDays(-2),        Score = 45, Outcome = InspectionOutcome.Fail },
+            new Inspection { PremisesId = premises.Id, InspectionDate = monthStart.AddMonths(-1), Score = 70, Outcome = InspectionOutcome.Pass }
         );
         await ctx.SaveChangesAsync();
 
@@ -775,9 +754,13 @@ public class BusinessLogicTests
     [Fact]
     public async Task Premises_WithInspections_CannotBeDeleted_ViaController()
     {
-        var (ctx, _, inspection) = await DbFactory.WithInspectionAsync();
+        var (ctx, _, _) = await DbFactory.WithInspectionAsync();
         var premises = await ctx.Premises.FirstAsync();
         var controller = new PremisesController(ctx);
+        controller.TempData = new Microsoft.AspNetCore.Mvc.ViewFeatures.TempDataDictionary(
+            new DefaultHttpContext(),
+            Mock.Of<Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider>()
+        );
 
         await controller.DeleteConfirmed(premises.Id);
 
