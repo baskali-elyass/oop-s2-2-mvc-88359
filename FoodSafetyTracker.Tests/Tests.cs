@@ -1,6 +1,7 @@
 using FoodSafetyTracker.Domain;
 using FoodSafetyTracker.MVC.Controllers;
 using FoodSafetyTracker.MVC.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
